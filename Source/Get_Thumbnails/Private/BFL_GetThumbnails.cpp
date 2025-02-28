@@ -55,11 +55,33 @@ void UBFL_GetThumbnails::RemoveBackgroundUsingPythonScript(FString AssetPath)
 	// Path to the Python interpreter and script
 	FString ProjectDir = FPaths::ProjectDir();
 	FString PythonScriptPath = ProjectDir / TEXT("Plugins/CPP-UE-GetThumbnails/Content/Python/RemoveThumbnail_BG.py");
+	FString PythonInterpreter = TEXT("python");
 
 	// Command to execute the Python script
-	FString PythonInterpreter = TEXT("python");
 	FString Command = FString::Printf(TEXT("\"%s\" \"%s\""), *PythonScriptPath, *AssetPath);
+	UE_LOG(LogTemp, Warning, TEXT("Command: %s"), *Command);
 
-	// Execute the command as a subprocess
-	FPlatformProcess::CreateProc(*PythonInterpreter, *Command, true, false, false, nullptr, 0, nullptr, nullptr);
+	// Execute the command
+	void* ReadPipe = nullptr;
+	void* WritePipe = nullptr;
+
+	FPlatformProcess::CreatePipe(ReadPipe, WritePipe);
+
+	FProcHandle ProcHandle = FPlatformProcess::CreateProc(
+		*PythonInterpreter, *Command, true, false, false, nullptr, 0, nullptr, WritePipe, ReadPipe
+	);
+
+	if (ProcHandle.IsValid())
+	{
+		FPlatformProcess::WaitForProc(ProcHandle); // Wait until the process is done
+		UE_LOG(LogTemp, Warning, TEXT("Python script executed successfully."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to execute Python script."));
+	}
+
+	// Cleanup
+	FPlatformProcess::ClosePipe(ReadPipe, WritePipe);
+	FPlatformProcess::CloseProc(ProcHandle);
 }
