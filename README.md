@@ -12,7 +12,7 @@
 - Make sure you have Python installed on your system to be able to use the above script.
 - Rembg is necessary to remove the background of the extracted thumnail images. If not installed, the extracted thumbnail images will have the default Unreal Engine checkered background.
 
-NOTE:
+NOTE (install manually):
 - "InstallDir\UE_5.5\Engine\Binaries\ThirdParty\Python3\Win64\python.exe" -m pip install rembg
 - "InstallDir\UE_5.5\Engine\Binaries\ThirdParty\Python3\Win64\python.exe" -m pip install onnxruntime
 
